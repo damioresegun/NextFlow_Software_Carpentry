@@ -1,9 +1,10 @@
+#!/usr/bin/env
 nextflow.enable.dsl = 2
 
 process QUANT {
 
-    publishDir "results/bams", pattern: "*.bam", mode: "copy"
-    publishDir "results/quant", pattern: "${sample_id}_salmon_output", mode: "copy"
+    publishDir "/mmfs1/groups/translational_apps/active/Dami/Personal/NextFlow_Software_Carpentry/my_code/cheking/bams", pattern: "*.bam", mode: "copy"
+    publishDir "/mmfs1/groups/translational_apps/active/Dami/Personal/NextFlow_Software_Carpentry/my_code/cheking/quant", pattern: "${sample_id}_salmon_output", mode: "copy"
 
     input:
     tuple val(sample_id), path(reads)
@@ -20,14 +21,12 @@ process QUANT {
         -1 ${reads[0]} \\
         -2 ${reads[1]} \\
         -o ${sample_id}_salmon_output \\
-        --writeMappings \\
-        | samtools sort \\
-        | samtools view -bS -o ${sample_id}.bam
+        --validateMappings --writeMappings | samtools sort | samtools view -bS -o ${sample_id}.bam
     """
 }
-
+mypath = "/mmfs1/groups/translational_apps/active/Dami/Personal/NextFlow_Software_Carpentry"
+reads_ch = Channel.fromFilePairs( "${mypath}/data/yeast/reads/ref1_{1,2}.fq.gz" )
+index_ch = Channel.fromPath( "${mypath}/data/yeast/salmon_index" )
 workflow {
-    reads_ch = Channel.fromFilePairs( 'data/yeast/reads/ref1_{1,2}.fq.gz' )
-    index_ch = Channel.fromPath( 'data/yeast/salmon_index' )
     QUANT( reads_ch, index_ch )
 }

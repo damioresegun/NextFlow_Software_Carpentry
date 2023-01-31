@@ -1,7 +1,7 @@
 nextflow.enable.dsl = 2
 
 process QUANT {
-    publishDir "results/quant"
+    publishDir "/mmfs1/groups/translational_apps/active/Dami/Personal/NextFlow_Software_Carpentry/my_code/cheking"
 
     input:
     tuple val(sample_id), path(reads)
@@ -19,11 +19,12 @@ process QUANT {
         -o ${sample_id}_salmon_output
     """
 }
-
+mypath = "/mmfs1/groups/translational_apps/active/Dami/Personal/NextFlow_Software_Carpentry"
 
 workflow {
-    reads_ch = Channel.fromFilePairs( 'data/yeast/reads/ref1_{1,2}.fq.gz' )
-    index_ch = Channel.fromPath( 'data/yeast/salmon_index' )
+    
+    reads_ch = Channel.fromFilePairs( "${mypath}/data/yeast/reads/ref1_{1,2}.fq.gz" )
+    index_ch = Channel.fromPath( "${mypath}/data/yeast/salmon_index" )
     QUANT( reads_ch, index_ch )
     QUANT.out.view()
 }
